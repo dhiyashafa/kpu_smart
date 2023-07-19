@@ -23,24 +23,24 @@ class KriteriasTableSeeder extends Seeder
       [
         'id' => '1',
         'nama' => 'Kelengkapan Data',
-        'weight' => '10.00',
-        'eigen' => '0.10',
+        'weight' => '40.00',
+        'eigen' => '0.40',
         'updated_at' => Carbon::now(),
         'created_at'    => Carbon::now()
       ],
       [
         'id' => '2',
         'nama' => 'Tes Tulis',
-        'weight' => '35.00',
-        'eigen' => '0.35',
+        'weight' => '20.00',
+        'eigen' => '0.20',
         'updated_at' => Carbon::now(),
         'created_at'    => Carbon::now()
       ],
       [
         'id' => '3',
         'nama' => 'Tes Wawancara',
-        'weight' => '40.00',
-        'eigen' => '0.40',
+        'weight' => '25.00',
+        'eigen' => '0.25',
         'updated_at' => Carbon::now(),
         'created_at'    => Carbon::now()
       ],

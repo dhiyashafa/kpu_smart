@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('alternatifs', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('nik')->unique();
             $table->string('nama');
             $table->text('alamat')->nullable();
             $table->string('nomer')->nullable();

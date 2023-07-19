@@ -9,6 +9,7 @@ use App\Models\Kriteria;
 use App\Models\Subkreteria;
 use App\Models\subperhitungans_na;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
 
 class PerhitunganController extends Controller
 {
@@ -33,6 +34,11 @@ class PerhitunganController extends Controller
 
     public function create(Request $request)
     {
+        $check_data = Kriteria::whereIn('id', ['1', '2', '3', '4'])->get();
+        if ($check_data->count() != 4) {
+            alert()->error('Gagal.', "Data Kreteria Tidak Lengkap, Silakan dimigrate --seed!");
+            return redirect()->route('perhitungan.index');
+        }
         $at = Alternatif::all(); //nama anggota
         $tanggapan = ['4' => 'Sangat Baik', '3' => 'Baik', '2' => 'Cukup', '1' => 'Kurang'];
         $param['kd'] = ['4' => 'Data Lengkap', '1' => 'Tidak Lengkap'];;;
@@ -53,6 +59,12 @@ class PerhitunganController extends Controller
             'tes_wawancara' => ['required'],
             'tang_masya' => ['required']
         ]);
+        $check_data = Kriteria::whereIn('id', ['1', '2', '3', '4'])->get();
+        if ($check_data->count() != 4) {
+            alert()->error('Gagal.', "Data Kreteria Tidak Lengkap, Silakan dimigrate --seed!");
+            return redirect()->route('perhitungan.index');
+        }
+
         // DB::beginTransaction();
         $tes_tulis = 1;
         if ($request->tes_tulis >= 90) {
@@ -85,10 +97,14 @@ class PerhitunganController extends Controller
             subperhitungans_na::create($subperhitungans_na);
         }
         $nilai = subperhitungans_na::where('perhitungan_id', $perhitungan->id)->sum('hasil');
+        $nilai_expload = explode('.', $nilai);
+        if (count($nilai_expload) > 1) {
+            $nilai = $nilai_expload[0] . '.' . substr($nilai_expload[1], 0, 3);
+        }
         $update = ['hasil' => $nilai];
         Perhitungan::find($perhitungan->id)->update($update);
         $this->update_hasil_all();
-        alert()->success('Berhasil.',"Data Berhasil ditambahkan!");
+        alert()->success('Berhasil.', "Data Berhasil ditambahkan!");
 
         return redirect()->route('perhitungan.index');
     }
@@ -110,7 +126,12 @@ class PerhitunganController extends Controller
                 $update_subkreteria = ['hasil' => $total];;
                 subperhitungans_na::where('perhitungan_id', $value->id)->where('kriterias_id', $value_sub->kriterias_id)->update($update_subkreteria);
             }
-            $nilai = subperhitungans_na::where('perhitungan_id', $value->id)->sum('hasil');
+            $nilai = subperhitungans_na::where('perhitungan_id', $value->id)->sum('hasil') * 100;
+
+            $nilai_expload = explode('.', $nilai);
+            if (count($nilai_expload) > 1) {
+                $nilai = $nilai_expload[0] . '.' . substr($nilai_expload[1], 0, 3);
+            }
             $update = ['hasil' => $nilai];
             Perhitungan::find($value->id)->update($update);
         }
@@ -123,6 +144,11 @@ class PerhitunganController extends Controller
 
     public function edit($id)
     {
+        $check_data = Kriteria::whereIn('id', ['1', '2', '3', '4'])->get();
+        if ($check_data->count() != 4) {
+            alert()->error('Gagal.', "Data Kreteria Tidak Lengkap, Silakan dimigrate --seed!");
+            return redirect()->route('perhitungan.index');
+        }
         $param['perhitungan'] = Perhitungan::findorfail($id);
         $param['kd_value'] = Subkreteria::where('perhitungan_id', $id)->where('kriterias_id', '1')->first()->nilai;
         $param['tw_value'] = Subkreteria::where('perhitungan_id', $id)->where('kriterias_id', '3')->first()->nilai;
@@ -148,7 +174,12 @@ class PerhitunganController extends Controller
             'tes_wawancara' => ['required'],
             'tang_masya' => ['required']
         ]);
-
+        $check_data = Kriteria::whereIn('id', ['1', '2', '3', '4'])->get();
+        if ($check_data->count() != 4) {
+            alert()->error('Gagal.', "Data Kreteria Tidak Lengkap, Silakan dimigrate --seed!");
+            return redirect()->route('perhitungan.index');
+        }
+        // DB::beginTransaction();
         $tes_tulis = 1;
         if ($request->tes_tulis >= 90) {
             $tes_tulis = 4;
@@ -178,36 +209,53 @@ class PerhitunganController extends Controller
             $update_subkreteria = ['hasil' => $total];;
             subperhitungans_na::where('perhitungan_id', $id)->where('kriterias_id', $key)->update($update_subkreteria);
         }
-        $nilai = subperhitungans_na::where('perhitungan_id', $id)->sum('hasil');
+        $nilai = subperhitungans_na::where('perhitungan_id', $id)->sum('hasil') * 100;
+
+
+        // DB::rollBack();
+        $nilai_expload = explode('.', $nilai);
+        if (count($nilai_expload) > 1) {
+            $nilai = $nilai_expload[0] . '.' . substr($nilai_expload[1], 0, 3);
+        }
         $update = ['hasil' => $nilai];
         Perhitungan::find($id)->update($update);
         $this->update_hasil_all();
-        alert()->success('Berhasil.',"Data Berhasil diedit!");
+        // DB::commit();
+        alert()->success('Berhasil.', "Data Berhasil diedit!");
         return redirect()->route('perhitungan.index');
     }
     public function delete_all()
     {
-
+        $check_data = Kriteria::whereIn('id', ['1', '2', '3', '4'])->get();
+        if ($check_data->count() != 4) {
+            alert()->error('Gagal.', "Data Kreteria Tidak Lengkap, Silakan dimigrate --seed!");
+            return redirect()->route('perhitungan.index');
+        }
         subperhitungans_na::where('id', 'like', '%%')->delete();
         Subkreteria::where('id', 'like', '%%')->delete();
         Perhitungan::where('id', 'like', '%%')->delete();
         $this->update_hasil_all();
-        alert()->success('Berhasil.',"Data Berhasil di hapus !");
+        alert()->success('Berhasil.', "Data Berhasil di hapus !");
         return redirect()->route('perhitungan.index');
     }
 
     public function destroy($id)
     {
+        $check_data = Kriteria::whereIn('id', ['1', '2', '3', '4'])->get();
+        if ($check_data->count() != 4) {
+            alert()->error('Gagal.', "Data Kreteria Tidak Lengkap, Silakan dimigrate --seed!");
+            return redirect()->route('perhitungan.index');
+        }
         Perhitungan::findorfail($id)->forceDelete();
         $this->update_hasil_all();
-        alert()->success('Berhasil.',"Data Berhasil di hapus !");
+        alert()->success('Berhasil.', "Data Berhasil di hapus !");
         return redirect()->route('perhitungan.index');
     }
     function export_pdf()
     {
         $perhitungan = Perhitungan::select("perhitungans.*", "alternatifs.nama")->leftJoin('alternatifs', 'perhitungans.alternatifs_id', '=', 'alternatifs.id')->orderBy('hasil', 'desc')->get();
         // dd($perhitungan->item);
-        $pdf = Pdf::loadview('perhitungan.pdf',['perhitungan'=>$perhitungan]);
+        $pdf = Pdf::loadview('perhitungan.pdf', ['perhitungan' => $perhitungan]);
         return $pdf->stream();
     }
 }

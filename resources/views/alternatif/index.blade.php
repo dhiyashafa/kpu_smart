@@ -40,6 +40,9 @@
                                     No.
                                 </th>
                                 <th>
+                                    NIK
+                                </th>
+                                <th>
                                     Nama
                                 </th>
                                 <th>
@@ -54,11 +57,14 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($alternatif as $alternatifs)
+                            @foreach($alternatif as $key =>$alternatifs)
                             <tr>
                             <td>
-                                    {{$alternatifs->id}}
+                                    {{$key=1}}
 
+                                </td>
+                                <td>
+                                    {{$alternatifs->nik}}
                                 </td>
                                 <td>
                                     {{$alternatifs->nama}}

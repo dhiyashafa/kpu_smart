@@ -24,6 +24,19 @@
                             <h4 class="card-title">Edit Calon Anggota</h4>
 
                             <div class="form-group{{ $errors->has('nama') ? ' has-error' : '' }}">
+                                <label for="nama" class="col-md-4 control-label">NIK</label>
+                                <div class="col-md-6">
+                                    <input id="nama" type="text" class="form-control" name="nik"
+                                        value="{{ $alternatifs->nik }}" required>
+                                    @if ($errors->has('nik'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('nik') }}</strong>
+                                    </span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <div class="form-group{{ $errors->has('nama') ? ' has-error' : '' }}">
                                 <label for="nama" class="col-md-4 control-label">Nama</label>
                                 <div class="col-md-6">
                                     <input id="nama" type="text" class="form-control" name="nama"

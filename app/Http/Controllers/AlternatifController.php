@@ -38,6 +38,7 @@ class AlternatifController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'nik' => ['required','unique:alternatifs','numeric','digits:16'],
             'nama' => ['required','string'],
             'alamat' => ['nullable'],
             'nomer' => ['nullable',]
@@ -46,6 +47,7 @@ class AlternatifController extends Controller
         ]);
 
         Alternatif::create([
+            'nik' => $request->get('nik'),
             'nama' => $request->get('nama'),
             'alamat' => $request->get('alamat'),
             'nomer' => $request->get('nomer')
@@ -69,6 +71,7 @@ class AlternatifController extends Controller
     public function update($id , Request $request)
     {
         $request->validate([
+            'nik' => ['required','numeric','digits:16'],
             'nama' => ['required','string'],
             'alamat' => ['nullable'],
             'nomer' => ['nullable',]

@@ -12,7 +12,7 @@ class Alternatif extends Model
 
     protected $table = 'alternatifs';
     protected $fillable = [
-    	'nama', 'alamat', 'nomer'
+    	'nik','nama', 'alamat', 'nomer'
     ];
 
     public function perhitungan()
