@@ -31,16 +31,16 @@
                                         <option value="{{$value->id}}">{{$value->nama}}</option>
                                         @endforeach
                                     </select>
-                                    @if ($errors->has('nama'))
+                                    @if ($errors->has('anggota'))
                                     <span class="help-block">
-                                        <strong>{{ $errors->first('nama') }}</strong>
+                                        <strong>{{ $errors->first('anggota') }}</strong>
                                     </span>
                                     @endif
                                 </div>
                             </div>
 
 
-                            <div class="form-group{{ $errors->has('nama') ? ' has-error' : '' }}">
+                            <div class="form-group{{ $errors->has('Kel_data') ? ' has-error' : '' }}">
                                 <label for="nama" class="col-md-4 control-label">Kelengkapan Data</label>
                                 <div class="col-md-6">
                                     <select name="Kel_data" id="Kel_data" class="form-control">
@@ -48,22 +48,22 @@
                                         <option value="{{$key}}">{{$value}}</option>
                                         @endforeach
                                     </select>
-                                    @if ($errors->has('nama'))
+                                    @if ($errors->has('Kel_data'))
                                     <span class="help-block">
-                                        <strong>{{ $errors->first('nama') }}</strong>
+                                        <strong>{{ $errors->first('Kel_data') }}</strong>
                                     </span>
                                     @endif
                                 </div>
                             </div>
 
-                            <div class="form-group{{ $errors->has('nama') ? ' has-error' : '' }}">
+                            <div class="form-group{{ $errors->has('tes_tulis') ? ' has-error' : '' }}">
                                 <label for="nama" class="col-md-4 control-label">Tes Tulis</label>
                                 <div class="col-md-6">
                                     <input id="tes_tulis" type="number" onkeyup="max100(this)" class="form-control" name="tes_tulis" value="{{ old('nama') }}" required>
 
-                                    @if ($errors->has('nama'))
+                                    @if ($errors->has('tes_tulis'))
                                     <span class="help-block">
-                                        <strong>{{ $errors->first('nama') }}</strong>
+                                        <strong>{{ $errors->first('tes_tulis') }}</strong>
                                     </span>
                                     @endif
                                 </div>
@@ -73,19 +73,21 @@
                                 <label for="weight" class="col-md-4 control-label">Tes Wawancara</label>
                                 <div class="col-md-6">
                                     <!-- <input id="weight" type="text" class="form-control" name="weight" value="{{ old('weight') }}" required> -->
-                                    <select name="tes_wawancara" id="tes_wawancara" class="form-control">
+                                    {{-- <select name="tes_wawancara" id="tes_wawancara" class="form-control">
                                         @foreach($param['tw'] as $key =>$value)
                                         <option value="{{$key}}">{{$value}}</option>
                                         @endforeach
-                                    </select>
-                                    @if ($errors->has('weight'))
+                                    </select> --}}
+                                    <input id="tes_wawancara" type="number" onkeyup="max100(this)" class="form-control"
+                                    name="tes_wawancara" value="{{ old('tes_wawancara') }}" required>
+                                    @if ($errors->has('tes_wawancara'))
                                     <span class="help-block">
-                                        <strong>{{ $errors->first('weight') }}</strong>
+                                        <strong>{{ $errors->first('tes_wawancara') }}</strong>
                                     </span>
                                     @endif
                                 </div>
                             </div>
-                            <div class="form-group{{ $errors->has('nama') ? ' has-error' : '' }}">
+                            <div class="form-group{{ $errors->has('tang_masya') ? ' has-error' : '' }}">
                                 <label for="nama" class="col-md-4 control-label">Tanggapan Masyarakat</label>
                                 <div class="col-md-6">
                                     <!-- <input id="nama" type="text" class="form-control" name="nama" value="{{ old('nama') }}" required> -->
@@ -94,9 +96,9 @@
                                         <option value="{{$key}}">{{$value}}</option>
                                         @endforeach
                                     </select>
-                                    @if ($errors->has('nama'))
+                                    @if ($errors->has('tang_masya'))
                                     <span class="help-block">
-                                        <strong>{{ $errors->first('nama') }}</strong>
+                                        <strong>{{ $errors->first('tang_masya') }}</strong>
                                     </span>
                                     @endif
                                 </div>

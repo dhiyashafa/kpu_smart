@@ -34,9 +34,9 @@ class PerhitunganController extends Controller
 
     public function create(Request $request)
     {
-        $check_data = Kriteria::whereIn('id', ['1', '2', '3', '4'])->get();
+        $check_data = Kriteria::whereIn('nama', ['Kelengkapan Data', 'Tes Tulis', 'Tes Wawancara', 'Tanggapan Masyarakat'])->get();
         if ($check_data->count() != 4) {
-            alert()->error('Gagal.', "Data Kreteria Tidak Lengkap, Silakan dimigrate --seed!");
+            alert()->error('Gagal.', "Data Kreteria Tidak Lengkap, Silakan ditambahkan terlebihdahulu!");
             return redirect()->route('perhitungan.index');
         }
         $at = Alternatif::all(); //nama anggota
@@ -59,9 +59,9 @@ class PerhitunganController extends Controller
             'tes_wawancara' => ['required'],
             'tang_masya' => ['required']
         ]);
-        $check_data = Kriteria::whereIn('id', ['1', '2', '3', '4'])->get();
+        $check_data = Kriteria::whereIn('nama', ['Kelengkapan Data', 'Tes Tulis', 'Tes Wawancara', 'Tanggapan Masyarakat'])->get();
         if ($check_data->count() != 4) {
-            alert()->error('Gagal.', "Data Kreteria Tidak Lengkap, Silakan dimigrate --seed!");
+            alert()->error('Gagal.', "Data Kreteria Tidak Lengkap, Silakan ditambahkan terlebihdahulu!");
             return redirect()->route('perhitungan.index');
         }
 
@@ -74,28 +74,40 @@ class PerhitunganController extends Controller
         } elseif ($request->tes_tulis >= 50 && $request->tes_tulis <= 69) {
             $tes_tulis = 2;
         }
-        $request_custom = ['1' => $request->Kel_data, '2' => $tes_tulis, '3' => $request->tes_wawancara, '4' => $request->tang_masya];
 
+        $tes_wawancara = 1;
+        if ($request->tes_wawancara >= 90) {
+            $tes_wawancara = 4;
+        } elseif ($request->tes_wawancara >= 70 && $request->tes_wawancara <= 89) {
+            $tes_wawancara = 3;
+        } elseif ($request->tes_wawancara >= 50 && $request->tes_wawancara <= 69) {
+            $tes_wawancara = 2;
+        }
+        $request_custom = ['Kelengkapan_Data' => $request->Kel_data, 'Tes_Tulis' => $tes_tulis, 'Tes_Wawancara' => $tes_wawancara, 'Tanggapan_Masyarakat' => $request->tang_masya];
         $perhitungan = Perhitungan::create([
             'alternatifs_id' => $request->anggota,
             'hasil' => '0',
         ]);
 
         foreach ($request_custom as $key => $value) {
-            $eigen = Kriteria::find($key)->eigen;
-            $create_sub = ['kriterias_id' => $key, 'nilai' => $value, 'perhitungan_id' => $perhitungan->id];
+            $where = explode('_', $key);
+            $get_kreteria = Kriteria::where('nama', $where[0] . ' ' . $where[1])->first();
+            $eigen = $get_kreteria->eigen;
+            $create_sub = ['kriterias_id' => $get_kreteria->id, 'nilai' => $value, 'perhitungan_id' => $perhitungan->id];
             Subkreteria::create($create_sub);
-            $max = Subkreteria::where('kriterias_id', $key)->max('nilai');
-            $min = Subkreteria::where('kriterias_id', $key)->min('nilai');
+            $max = Subkreteria::where('kriterias_id', $get_kreteria->id)->max('nilai');
+            $min = Subkreteria::where('kriterias_id', $get_kreteria->id)->min('nilai');
             if ($max == $min) {
                 $hasil = 0;
             } else {
                 $hasil = ($value - $min) / ($max - ($min) * (100 / 100));
             }
             $total = $hasil * $eigen;
-            $subperhitungans_na = ['kriterias_id' => $key, 'hasil' => $total, 'perhitungan_id' => $perhitungan->id];;
+            $subperhitungans_na = ['kriterias_id' => $get_kreteria->id, 'hasil' => $total, 'perhitungan_id' => $perhitungan->id];;
             subperhitungans_na::create($subperhitungans_na);
         }
+        // DB::rollBack();
+
         $nilai = subperhitungans_na::where('perhitungan_id', $perhitungan->id)->sum('hasil');
         $nilai_expload = explode('.', $nilai);
         if (count($nilai_expload) > 1) {
@@ -144,15 +156,20 @@ class PerhitunganController extends Controller
 
     public function edit($id)
     {
-        $check_data = Kriteria::whereIn('id', ['1', '2', '3', '4'])->get();
+        $check_data = Kriteria::whereIn('nama', ['Kelengkapan Data', 'Tes Tulis', 'Tes Wawancara', 'Tanggapan Masyarakat'])->get();
         if ($check_data->count() != 4) {
-            alert()->error('Gagal.', "Data Kreteria Tidak Lengkap, Silakan dimigrate --seed!");
+            alert()->error('Gagal.', "Data Kreteria Tidak Lengkap, Silakan ditambahkan terlebihdahulu!");
             return redirect()->route('perhitungan.index');
         }
+
         $param['perhitungan'] = Perhitungan::findorfail($id);
-        $param['kd_value'] = Subkreteria::where('perhitungan_id', $id)->where('kriterias_id', '1')->first()->nilai;
-        $param['tw_value'] = Subkreteria::where('perhitungan_id', $id)->where('kriterias_id', '3')->first()->nilai;
-        $param['tm_value'] = Subkreteria::where('perhitungan_id', $id)->where('kriterias_id', '4')->first()->nilai;
+        $kd_value = Subkreteria::where('perhitungan_id', $id)->where('kriterias_id', '1')->first();
+        $param['kd_value'] = $kd_value ? $kd_value->nilai : '0';
+        $tw_value = Subkreteria::where('perhitungan_id', $id)->where('kriterias_id', '3')->first();
+        $param['tw_value'] = $tw_value ? $tw_value->nilai : '0';
+        $tm_value = Subkreteria::where('perhitungan_id', $id)->where('kriterias_id', '4')->first();
+
+        $param['tm_value'] = $tm_value ? $tm_value->nilai : '0';
         // dd($param);
         $at = Alternatif::all();
         $tanggapan = ['4' => 'Sangat Baik', '3' => 'Baik', '2' => 'Cukup', '1' => 'Kurang'];
@@ -174,9 +191,9 @@ class PerhitunganController extends Controller
             'tes_wawancara' => ['required'],
             'tang_masya' => ['required']
         ]);
-        $check_data = Kriteria::whereIn('id', ['1', '2', '3', '4'])->get();
+        $check_data = Kriteria::whereIn('nama', ['Kelengkapan Data', 'Tes Tulis', 'Tes Wawancara', 'Tanggapan Masyarakat'])->get();
         if ($check_data->count() != 4) {
-            alert()->error('Gagal.', "Data Kreteria Tidak Lengkap, Silakan dimigrate --seed!");
+            alert()->error('Gagal.', "Data Kreteria Tidak Lengkap, Silakan ditambahkan terlebihdahulu!");
             return redirect()->route('perhitungan.index');
         }
         // DB::beginTransaction();
@@ -188,18 +205,29 @@ class PerhitunganController extends Controller
         } elseif ($request->tes_tulis >= 50 && $request->tes_tulis <= 69) {
             $tes_tulis = 2;
         }
+        $tes_wawancara = 1;
+        if ($request->tes_wawancara >= 90) {
+            $tes_wawancara = 4;
+        } elseif ($request->tes_wawancara >= 70 && $request->tes_wawancara <= 89) {
+            $tes_wawancara = 3;
+        } elseif ($request->tes_wawancara >= 50 && $request->tes_wawancara <= 69) {
+            $tes_wawancara = 2;
+        }
         Perhitungan::find($id)->update([
             'alternatifs_id' => $request->anggota,
             'hasil' => '0',
         ]);
-        $request_custom = ['1' => $request->Kel_data, '2' => $tes_tulis, '3' => $request->tes_wawancara, '4' => $request->tang_masya];
+        // $request_custom = ['1' => $request->Kel_data, '2' => $tes_tulis, '3' => $tes_wawancara, '4' => $request->tang_masya];
+        $request_custom = ['Kelengkapan_Data' => $request->Kel_data, 'Tes_Tulis' => $tes_tulis, 'Tes_Wawancara' => $tes_wawancara, 'Tanggapan_Masyarakat' => $request->tang_masya];
         Subkreteria::where('perhitungan_id', $id)->delete();
         foreach ($request_custom as $key => $value) {
-            $create_sub = ['kriterias_id' => $key, 'nilai' => $value, 'perhitungan_id' => $id];
+            $where = explode('_', $key);
+            $get_kreteria = Kriteria::where('nama', $where[0] . ' ' . $where[1])->first();
+            $create_sub = ['kriterias_id' => $get_kreteria->id, 'nilai' => $value, 'perhitungan_id' => $id];
             Subkreteria::create($create_sub);
-            $eigen = Kriteria::find($key)->eigen;
-            $max = Subkreteria::where('kriterias_id', $key)->max('nilai');
-            $min = Subkreteria::where('kriterias_id', $key)->min('nilai');
+            $eigen = $get_kreteria->eigen;
+            $max = Subkreteria::where('kriterias_id', $get_kreteria->id)->max('nilai');
+            $min = Subkreteria::where('kriterias_id', $get_kreteria->id)->min('nilai');
             if ($max == $min) {
                 $hasil = 0;
             } else {
@@ -207,7 +235,13 @@ class PerhitunganController extends Controller
             }
             $total = $hasil * $eigen;
             $update_subkreteria = ['hasil' => $total];;
-            subperhitungans_na::where('perhitungan_id', $id)->where('kriterias_id', $key)->update($update_subkreteria);
+            $check_data_subperhitungans_na = subperhitungans_na::where('perhitungan_id', $id)->get();
+            if ($check_data_subperhitungans_na->count() == 4) {
+                subperhitungans_na::where('perhitungan_id', $id)->where('kriterias_id', $get_kreteria->id)->update($update_subkreteria);
+            } else {
+                $subperhitungans_na = ['kriterias_id' => $get_kreteria->id, 'hasil' => $total, 'perhitungan_id' => $id];;
+                subperhitungans_na::create($subperhitungans_na);
+            }
         }
         $nilai = subperhitungans_na::where('perhitungan_id', $id)->sum('hasil') * 100;
 
@@ -226,11 +260,11 @@ class PerhitunganController extends Controller
     }
     public function delete_all()
     {
-        $check_data = Kriteria::whereIn('id', ['1', '2', '3', '4'])->get();
-        if ($check_data->count() != 4) {
-            alert()->error('Gagal.', "Data Kreteria Tidak Lengkap, Silakan dimigrate --seed!");
-            return redirect()->route('perhitungan.index');
-        }
+        // $check_data = Kriteria::whereIn('nama', ['Kelengkapan Data', 'Tes Tulis', 'Tes Wawancara', 'Tanggapan Masyarakat'])->get();
+        // if ($check_data->count() != 4) {
+        //     alert()->error('Gagal.', "Data Kreteria Tidak Lengkap, Silakan ditambahkan terlebihdahulu!");
+        //     return redirect()->route('perhitungan.index');
+        // }
         subperhitungans_na::where('id', 'like', '%%')->delete();
         Subkreteria::where('id', 'like', '%%')->delete();
         Perhitungan::where('id', 'like', '%%')->delete();
@@ -241,11 +275,11 @@ class PerhitunganController extends Controller
 
     public function destroy($id)
     {
-        $check_data = Kriteria::whereIn('id', ['1', '2', '3', '4'])->get();
-        if ($check_data->count() != 4) {
-            alert()->error('Gagal.', "Data Kreteria Tidak Lengkap, Silakan dimigrate --seed!");
-            return redirect()->route('perhitungan.index');
-        }
+        // $check_data = Kriteria::whereIn('nama', ['Kelengkapan Data', 'Tes Tulis', 'Tes Wawancara', 'Tanggapan Masyarakat'])->get();
+        // if ($check_data->count() != 4) {
+        //     alert()->error('Gagal.', "Data Kreteria Tidak Lengkap, Silakan ditambahkan terlebihdahulu!");
+        //     return redirect()->route('perhitungan.index');
+        // }
         Perhitungan::findorfail($id)->forceDelete();
         $this->update_hasil_all();
         alert()->success('Berhasil.', "Data Berhasil di hapus !");

@@ -41,7 +41,7 @@
                                 </div>
 
 
-                                <div class="form-group{{ $errors->has('nama') ? ' has-error' : '' }}">
+                                <div class="form-group{{ $errors->has('Kel_data') ? ' has-error' : '' }}">
                                     <label for="nama" class="col-md-4 control-label">Kelengkapan Data</label>
                                     <div class="col-md-6">
                                         <select name="Kel_data" id="Kel_data" class="form-control">
@@ -51,7 +51,7 @@
                                                 </option>
                                             @endforeach
                                         </select>
-                                        @if ($errors->has('nama'))
+                                        @if ($errors->has('Kel_data'))
                                             <span class="help-block">
                                                 <strong>{{ $errors->first('nama') }}</strong>
                                             </span>
@@ -63,9 +63,9 @@
                                     <label for="nama" class="col-md-4 control-label">Tes Tulis</label>
                                     <div class="col-md-6">
                                         <input id="tes_tulis" type="number" onkeyup="max100(this)" class="form-control"
-                                            name="tes_tulis" value="{{ old('nama') }}" required>
+                                            name="tes_tulis" value="{{ old('tes_tulis') }}" required>
 
-                                        @if ($errors->has('nama'))
+                                        @if ($errors->has('tes_tulis'))
                                             <span class="help-block">
                                                 <strong>{{ $errors->first('nama') }}</strong>
                                             </span>
@@ -76,14 +76,16 @@
                                 <div class="form-group{{ $errors->has('weight') ? ' has-error' : '' }}">
                                     <label for="weight" class="col-md-4 control-label">Tes Wawancara</label>
                                     <div class="col-md-6">
-                                        <select name="tes_wawancara" id="tes_wawancara" class="form-control">
+                                        {{-- <select name="tes_wawancara" id="tes_wawancara" class="form-control">
                                             @foreach ($param['tw'] as $key => $value)
                                                 <option value="{{ $key }}"
                                                     {{ $key == $param['tw_value'] ? 'selected' : '' }}>{{ $value }}
                                                 </option>
                                             @endforeach
-                                        </select>
-                                        @if ($errors->has('weight'))
+                                        </select> --}}
+                                        <input id="tes_tulis" type="number" onkeyup="max100(this)" class="form-control"
+                                            name="tes_wawancara" value="{{ old('tes_wawancara') }}" required>
+                                        @if ($errors->has('tes_tulis'))
                                             <span class="help-block">
                                                 <strong>{{ $errors->first('weight') }}</strong>
                                             </span>
@@ -100,7 +102,7 @@
                                                 </option>
                                             @endforeach
                                         </select>
-                                        @if ($errors->has('nama'))
+                                        @if ($errors->has('tang_masya'))
                                             <span class="help-block">
                                                 <strong>{{ $errors->first('nama') }}</strong>
                                             </span>
