@@ -32,6 +32,7 @@ class HomeController extends Controller
         // $param['user'] = User::get();
         $param['kriteria'] = Kriteria::count();
         $param['anggota'] = Alternatif::count();
+        $tampung = [];
         $param['ranking'] = Perhitungan::select("hasil", DB::raw('count(hasil) total'))
         ->leftJoin('alternatifs', 'perhitungans.alternatifs_id', '=', 'alternatifs.id')
         ->orderBy('hasil', 'desc')
