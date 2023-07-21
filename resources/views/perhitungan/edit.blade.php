@@ -53,7 +53,7 @@
                                         </select>
                                         @if ($errors->has('Kel_data'))
                                             <span class="help-block">
-                                                <strong>{{ $errors->first('nama') }}</strong>
+                                                <strong>{{ $errors->first('Kel_data') }}</strong>
                                             </span>
                                         @endif
                                     </div>
@@ -67,7 +67,7 @@
 
                                         @if ($errors->has('tes_tulis'))
                                             <span class="help-block">
-                                                <strong>{{ $errors->first('nama') }}</strong>
+                                                <strong>{{ $errors->first('tes_tulis') }}</strong>
                                             </span>
                                         @endif
                                     </div>
@@ -87,7 +87,7 @@
                                             name="tes_wawancara" value="{{ old('tes_wawancara') }}" required>
                                         @if ($errors->has('tes_tulis'))
                                             <span class="help-block">
-                                                <strong>{{ $errors->first('weight') }}</strong>
+                                                <strong>{{ $errors->first('tes_tulis') }}</strong>
                                             </span>
                                         @endif
                                     </div>
@@ -104,7 +104,7 @@
                                         </select>
                                         @if ($errors->has('tang_masya'))
                                             <span class="help-block">
-                                                <strong>{{ $errors->first('nama') }}</strong>
+                                                <strong>{{ $errors->first('tang_masya') }}</strong>
                                             </span>
                                         @endif
                                     </div>

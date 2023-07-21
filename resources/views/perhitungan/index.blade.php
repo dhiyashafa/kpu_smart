@@ -65,9 +65,9 @@
                             <tbody>
                                 @foreach ($param['perhitungan'] as $key => $perhitungans)
                                     <tr>
-                                        <td>{{ $key + 1 }}</td>
-                                        <td>{{ $perhitungans->nama }}</td>
-                                        <td>{{ $perhitungans->hasil }}</td>
+                                        <td>{{ $perhitungans['ranking'] }}</td>
+                                        <td>{{ $perhitungans['perhitungan']->nama }}</td>
+                                        <td>{{ $perhitungans['perhitungan']->hasil }}</td>
                                         <td>
                                             <div class="btn-group dropdown">
                                                 <button type="button" class="btn btn-success dropdown-toggle btn-sm"
@@ -77,8 +77,8 @@
                                                 <div class="dropdown-menu" x-placement="bottom-start"
                                                     style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 30px, 0px);">
                                                     <a class="dropdown-item"
-                                                        href="{{ route('perhitungan.edit', $perhitungans->id) }}">Edit</a>
-                                                    <form action="{{ route('perhitungan.destroy', $perhitungans->id) }}"
+                                                        href="{{ route('perhitungan.edit', $perhitungans['perhitungan']->id) }}">Edit</a>
+                                                    <form action="{{ route('perhitungan.destroy', $perhitungans['perhitungan']->id) }}"
                                                         class="pull-left" method="post">
                                                         {{ csrf_field() }}
                                                         {{ method_field('delete') }}

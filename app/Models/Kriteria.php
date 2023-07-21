@@ -14,10 +14,10 @@ class Kriteria extends Model
     	'nama', 'weight', 'eigen'
     ];
 
-    public function perhitungan()
-    {
-        return $this->belongsTo(Perhitungan::class, 'perhitungan_id', 'id');
-    }
+    // public function perhitungan()
+    // {
+    //     return $this->belongsTo(Perhitungan::class, 'perhitungan_id', 'id');
+    // }
     // public function Bobot(){
     //     return $this->hasMany(m_bobot::class);
     // }

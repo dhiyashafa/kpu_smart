@@ -79,9 +79,9 @@
                             <tbody>
                                 @foreach ($perhitungan as $key => $perhitungans)
                                     <tr>
-                                        <td>{{ $key + 1 }}</td>
-                                        <td>{{ $perhitungans->nama }}</td>
-                                        <td>{{ $perhitungans->hasil }}</td>
+                                        <td>{{ $perhitungans['ranking'] }}</td>
+                                        <td>{{ $perhitungans['perhitungan']->nama }}</td>
+                                        <td>{{ $perhitungans['perhitungan']->hasil }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

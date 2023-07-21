@@ -60,7 +60,7 @@
                             @foreach($alternatif as $key =>$alternatifs)
                             <tr>
                             <td>
-                                    {{$key=1}}
+                                    {{$key+1}}
 
                                 </td>
                                 <td>

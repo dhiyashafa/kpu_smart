@@ -18,11 +18,11 @@ class Perhitungan extends Model
     	'alternatifs_id', 'hasil'
     ];
 
-    public function alternatif()
-    {
-        return $this->hasMany(Alternatif::class, 'alternatif_id', 'id');
-        // return $this->hasOne(Alternatif::class);
-    }
+    // public function alternatif()
+    // {
+    //     return $this->hasMany(Alternatif::class, 'alternatif_id', 'id');
+    //     // return $this->hasOne(Alternatif::class);
+    // }
 
     // public function kriteria()
     // {

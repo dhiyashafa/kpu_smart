@@ -16,17 +16,35 @@ class PerhitunganController extends Controller
     private $title = "Perhitungan";
     public function __construct()
     {
-        // echo 'CONTRAK';
-        // die();
         // dd(Perhitungan::onlyTrashed()->get());
     }
 
     public function index()
     {
-        $param['perhitungan'] = Perhitungan::select("perhitungans.*", "alternatifs.nama")->leftJoin('alternatifs', 'perhitungans.alternatifs_id', '=', 'alternatifs.id')->orderBy('hasil', 'desc')->get();
+        $tampung = [];
+        // mengambil ranking berdasarkan hasil paling tinngi
+        $param['ranking'] = Perhitungan::select("hasil", DB::raw('count(hasil) total'))
+        ->leftJoin('alternatifs', 'perhitungans.alternatifs_id', '=', 'alternatifs.id')
+        ->orderBy('hasil', 'desc')
+        ->having('hasil', '>', '0')
+        ->groupBy('hasil')->get();
 
-        // dd(Perhitungan::onlyTrashed()->get());
-        // dd($param['perhitungan']);
+        // mengambil data perhitungan berdasarkan hasil paling tinngi
+        $perhitungan = Perhitungan::select("perhitungans.*", "alternatifs.nama")
+        ->leftJoin('alternatifs', 'perhitungans.alternatifs_id', '=', 'alternatifs.id')
+        ->orderBy('hasil', 'desc')->get();
+        $array_ranking = [];
+        $ranking = 1;
+        foreach ($param['ranking'] as $key => $value) {
+            // merubah dari array list ke array 
+            $array_ranking[] = $value->hasil;
+        }
+        foreach ($perhitungan as $key => $value) {
+            // jika hasil ada didalam array rangking +1 hasilnya rankingnya
+            $ranking = array_search($value->hasil, $array_ranking) + 1;
+            $tampung[] = ['ranking' => $ranking, 'perhitungan' => $value];
+        }
+        $param['perhitungan'] = $tampung;
         $param['title'] = $this->title;
 
         return view('perhitungan.index', compact('param'));
@@ -41,7 +59,7 @@ class PerhitunganController extends Controller
         }
         $at = Alternatif::all(); //nama anggota
         $tanggapan = ['4' => 'Sangat Baik', '3' => 'Baik', '2' => 'Cukup', '1' => 'Kurang'];
-        $param['kd'] = ['4' => 'Data Lengkap', '1' => 'Tidak Lengkap'];;;
+        $param['kd'] = ['4' => 'Data Lengkap', '1' => 'Tidak Lengkap'];
         $param['tw'] = $tanggapan;
         $param['tm'] = $tanggapan;
         $param['at'] = $at;

@@ -15,8 +15,8 @@ class Alternatif extends Model
     	'nik','nama', 'alamat', 'nomer'
     ];
 
-    public function perhitungan()
-    {
-        return $this->belongsTo(Perhitungan::class, 'perhitungan_id', 'id');
-    }
+    // public function perhitungan()
+    // {
+    //     return $this->belongsTo(Perhitungan::class, 'perhitungan_id', 'id');
+    // }
 }
