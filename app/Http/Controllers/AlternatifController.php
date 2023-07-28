@@ -38,19 +38,21 @@ class AlternatifController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nik' => ['required','unique:alternatifs','numeric','digits:16'],
+            'no_pendaftaran' => ['required','unique:alternatifs','numeric'],
             'nama' => ['required','string'],
+            'kelamin' => ['required'],
             'alamat' => ['nullable'],
-            'nomer' => ['nullable',]
+            'email' => ['email','required']
 
             // 'jenis' => 'required',
         ]);
 
         Alternatif::create([
-            'nik' => $request->get('nik'),
+            'no_pendaftaran' => $request->get('no_pendaftaran'),
             'nama' => $request->get('nama'),
+            'kelamin' => $request->get('kelamin'),
             'alamat' => $request->get('alamat'),
-            'nomer' => $request->get('nomer')
+            'email' => $request->get('email')
         ]);
         alert()->success('Berhasil.',"Data Berhasil ditambahkan!");
         return redirect()->route('alternatif.index');
@@ -71,10 +73,11 @@ class AlternatifController extends Controller
     public function update($id , Request $request)
     {
         $request->validate([
-            'nik' => ['required','numeric','digits:16'],
+            'no_pendaftaran' => ['required','numeric'],
             'nama' => ['required','string'],
+            'kelamin' => ['required'],
             'alamat' => ['nullable'],
-            'nomer' => ['nullable',]
+            'email' => ['email','required']
         ]);
 
         Alternatif::find($id)->update($request->all());

@@ -15,10 +15,11 @@ return new class extends Migration
     {
         Schema::create('alternatifs', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('nik')->unique();
+            $table->bigInteger('no_pendaftaran')->unique();
             $table->string('nama');
             $table->text('alamat')->nullable();
-            $table->string('nomer')->nullable();
+            $table->string('kelamin')->nullable();
+            $table->string('email')->nullable();
             $table->timestamps();
         });
     }

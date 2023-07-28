@@ -54,7 +54,7 @@ class HomeController extends Controller
         ->where('hasil','>=',$nilai)
         ->orderBy('hasil', 'desc')->get();// mengambil data perhitungan berdasarkan minimal $nilai dari ranking 
         $array_ranking = [];
-        $ranking = 1;
+        // $ranking = 1;
         foreach ($param['ranking'] as $key => $value) {
             $array_ranking[] = $value->hasil;// merubah dari array list ke array 
         }

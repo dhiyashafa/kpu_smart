@@ -131,7 +131,7 @@
                                     <span id='message'></span>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary" id="submit">
+                            <button type="submit" class="btn btn-success" id="submit">
                                 Register
                             </button>
                             <button type="reset" class="btn btn-danger">
