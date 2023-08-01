@@ -200,7 +200,7 @@ class PerhitunganController extends Controller
     {
         // return $alternatif;
         // dd();
-        $param['perhitungan'] = Perhitungan::select("perhitungans.hasil", "alternatifs.nama")->leftJoin('alternatifs', 'perhitungans.alternatifs_id', '=', 'alternatifs.id')->first();
+        $param['perhitungan'] = Perhitungan::select("perhitungans.hasil", "alternatifs.nama")->leftJoin('alternatifs', 'perhitungans.alternatifs_id', '=', 'alternatifs.id')->where('perhitungans.id',$id)->first();
         $param['subkreteria'] = Subkreteria::select("sub_kriteria.perhitungan_id", "sub_kriteria.nilai", "kriterias.nama")->leftJoin('kriterias', 'sub_kriteria.kriterias_id', '=', 'kriterias.id')->leftJoin('alternatifs', 'sub_kriteria.kriterias_id', '=', 'alternatifs.id')->where('sub_kriteria.perhitungan_id',$id)->get();
 
         return view('perhitungan.show', compact('param'));
