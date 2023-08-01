@@ -196,9 +196,14 @@ class PerhitunganController extends Controller
         }
     }
 
-    public function show(Alternatif $alternatif)
+    public function show($id)
     {
-        return $alternatif;
+        // return $alternatif;
+        // dd();
+        $param['perhitungan'] = Perhitungan::select("perhitungans.hasil", "alternatifs.nama")->leftJoin('alternatifs', 'perhitungans.alternatifs_id', '=', 'alternatifs.id')->first();
+        $param['subkreteria'] = Subkreteria::select("sub_kriteria.perhitungan_id", "sub_kriteria.nilai", "kriterias.nama")->leftJoin('kriterias', 'sub_kriteria.kriterias_id', '=', 'kriterias.id')->leftJoin('alternatifs', 'sub_kriteria.kriterias_id', '=', 'alternatifs.id')->where('sub_kriteria.perhitungan_id',$id)->get();
+
+        return view('perhitungan.show', compact('param'));
     }
 
     public function edit($id)
@@ -404,8 +409,8 @@ class PerhitunganController extends Controller
             // untuk memasukkan dari variabel $subkreteria ke dalam $perhitungan
             $data_perhitungan = $this->proses_hasil($perhitungan, $subkreteria);
             // untuk memasukkan dari variabel $subperhitungans_na ke dalam $perhitungan , untuk 'subperhitungans_na' berfungsi untuk membedakan antara subkreteria dengan subperhitungans_na
-            $data_perhitungan = $this->proses_hasil($perhitungan, $subperhitungans_na, 'subperhitungans_nai');
-
+            $data_perhitungan = $this->proses_hasil($data_perhitungan, $subperhitungans_na, 'subperhitungans_nai');
+            // dd($data_perhitungan);
 
             // dd($data_perhitungan);
             $array_ranking = [];
