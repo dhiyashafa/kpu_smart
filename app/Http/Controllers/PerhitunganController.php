@@ -10,6 +10,7 @@ use App\Models\Subkreteria;
 use App\Models\subperhitungans_na;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
+use stdClass;
 
 class PerhitunganController extends Controller
 {
@@ -349,5 +350,127 @@ class PerhitunganController extends Controller
 
         $pdf = Pdf::loadview('perhitungan.pdf', ['perhitungan' => $perhitungan]);
         return $pdf->stream();
+    }
+    function semua($id = 0)
+    {
+        $tampung = [];
+
+        // kriteria 
+        $param['kriteria'] = Kriteria::whereIn('nama', ['Kelengkapan Data', 'Tes Tulis', 'Tes Wawancara', 'Tanggapan Masyarakat'])->get();
+        // mencari ranking semua anggota
+        $param['ranking'] = Perhitungan::select("hasil", DB::raw('count(hasil) total'))
+            ->leftJoin('alternatifs', 'perhitungans.alternatifs_id', '=', 'alternatifs.id')
+            ->orderBy('hasil', 'desc')
+            ->groupBy('hasil')->get();
+
+        // mengambil semua data perhitungan
+        $perhitungan = Perhitungan::select("perhitungans.hasil", "perhitungans.id", "alternatifs.nama")
+            ->leftJoin('alternatifs', 'perhitungans.alternatifs_id', '=', 'alternatifs.id')
+            ->orderBy('hasil', 'desc')->get();
+
+        // mengmbil semuadata di tabel subkreteria karena untuk mencari nilai mix dan maxnya
+        $subkreteria = Subkreteria::select("sub_kriteria.perhitungan_id", "sub_kriteria.nilai", "kriterias.nama")->leftJoin('kriterias', 'sub_kriteria.kriterias_id', '=', 'kriterias.id')->get();
+
+        // jika idnya tidak 0 maka menampilkan data setiap anggota , jika id 0 maka menampilkan semua anggota
+        if ($id != 0) {
+
+
+
+            // mengmbil data di tabel subperhitungans_na berdasarkan perhitungan_id
+            $subperhitungans_na = subperhitungans_na::select("subperhitungans_na.perhitungan_id", "subperhitungans_na.hasil", "kriterias.nama")->leftJoin('kriterias', 'subperhitungans_na.kriterias_id', '=', 'kriterias.id')->where('subperhitungans_na.perhitungan_id', $id)->get();
+
+            // untuk memasukkan dari variabel $subkreteria ke dalam $perhitungan
+            $data_perhitungan = $this->proses_hasil($perhitungan, $subkreteria);
+
+            // untuk memasukkan dari variabel $subperhitungans_na ke dalam $perhitungan , untuk 'subperhitungans_na' berfungsi untuk membedakan antara subkreteria dengan subperhitungans_na
+            $data_perhitungan = $this->proses_hasil($perhitungan, $subperhitungans_na, 'subperhitungans_na');
+
+
+            $array_ranking = [];
+            // merubah dari array list ke array
+            foreach ($param['ranking'] as $key => $value) {
+                $array_ranking[] = $value->hasil;
+            }
+            // jika hasil ada didalam array rangking +1 hasilnya rankingnya
+            foreach ($data_perhitungan as $key => $value) {
+                // jika ada data tidak ditemukan di ranking otomatis mengambil ranking 1 karena array_search($value->hasil, $array_ranking) hasilnya kosong kalau di + 1 otomatis hasilya 1
+                $ranking = array_search($value->hasil, $array_ranking) + 1;
+                $tampung[] = ['ranking' => $ranking, 'perhitungan' => $value];
+            }
+        } else {
+
+            // mengmbil data di tabel subperhitungans_na berdasarkan perhitungan_id
+            $subperhitungans_na = subperhitungans_na::select("subperhitungans_na.perhitungan_id", "subperhitungans_na.hasil", "kriterias.nama")->leftJoin('kriterias', 'subperhitungans_na.kriterias_id', '=', 'kriterias.id')->get();
+            // untuk memasukkan dari variabel $subkreteria ke dalam $perhitungan
+            $data_perhitungan = $this->proses_hasil($perhitungan, $subkreteria);
+            // untuk memasukkan dari variabel $subperhitungans_na ke dalam $perhitungan , untuk 'subperhitungans_na' berfungsi untuk membedakan antara subkreteria dengan subperhitungans_na
+            $data_perhitungan = $this->proses_hasil($perhitungan, $subperhitungans_na, 'subperhitungans_nai');
+
+
+            // dd($data_perhitungan);
+            $array_ranking = [];
+            // merubah dari array list ke array
+            foreach ($param['ranking'] as $key => $value) {
+                $array_ranking[] = $value->hasil;
+            }
+            // jika hasil ada didalam array rangking +1 hasilnya rankingnya
+            foreach ($data_perhitungan as $key => $value) {
+                // jika ada data tidak ditemukan di ranking otomatis mengambil ranking 1 karena array_search($value->hasil, $array_ranking) hasilnya kosong kalau di + 1 otomatis hasilya 1
+                $ranking = array_search($value->hasil, $array_ranking) + 1;
+                $tampung[] = ['ranking' => $ranking, 'perhitungan' => $value];
+            }
+        }
+
+        // mengambil semua data perhitungan
+
+        $param['id'] = $id;
+        $param['sub_kriteria'] = $tampung;
+        $param['title'] = $this->title;
+
+        return view('perhitungan.semua', compact('param'));
+    }
+    function proses_hasil($perhitungan, $hasil, $title = '')
+    {
+        // perulangan pertama untuk menyamakan perhitungan.id dengan perhitungan_id yang ada dalam tabel subkreteria atau subperhitungans_na
+        foreach ($perhitungan as $key_perhitungan => $value_perhitungan) {
+
+            // jika $title kosong maka akan membuat variabel baru dengan nama subkreteria jika tidak kosong maka membuat variabel baru dengan nama subperhitungans_na
+            if (!empty($title)) {
+                // membuat array object
+                $perhitungan[$key_perhitungan]->subperhitungans_na = new stdClass;
+            } else {
+                // membuat array object
+                $perhitungan[$key_perhitungan]->subkreteria = new stdClass;
+            }
+            // pengulangan ke dua untuk memasukkan dari data  subkreteria atau subperhitungans_na kedalam perhitungan 
+            foreach ($hasil as $key => $value) {
+                // jika id perhitungan sama dengan perhitungan_id maka data akan di masukkan ke dalam perhitungan
+                if ($value_perhitungan->id == $value->perhitungan_id) {
+                    // untuk memecah spasi menjadi array
+                    $nama = explode(' ', $value->nama);
+                    // untuk menggabungkan array kreteria yang awalnya $nama[0]= kelengkapan , dan $nama[1]=Data jadi kelengkapanData
+                    $variabel = $nama[0] . $nama[1];
+                    // jika title tidak kosong maka akan dimasukkan kedalam variabel subperhitungans_na, jika kosong akan dimasukkan kedalam subkreteria
+                    if (!empty($title)) {
+                        // jika nilai dibelakang titik lebih dari 3 otomatis menjadi cuma 3 
+                        $nilai_expload = explode('.', $value->hasil);
+                        if (count($nilai_expload) > 1) {
+                            $nilai = $nilai_expload[0] . '.' . substr($nilai_expload[1], 0, 3);
+                            // untuk memasukkan nilai kedalam subperhitungans_na dengan nama $variabel yang mengambil nama kreteria tanpa spasi
+                            $perhitungan[$key_perhitungan]->subperhitungans_na->$variabel = $nilai;
+                        } else {
+                            // untuk memasukkan nilai kedalam subperhitungans_na dengan nama $variabel yang mengambil nama kreteria tanpa spasi
+                            $perhitungan[$key_perhitungan]->subperhitungans_na->$variabel = $value->hasil;
+                        }
+                    } else {
+                        // untuk memasukkan nilai kedalam subkreteria dengan nama $variabel yang mengambil nama kreteria tanpa spasi
+                        // awalnya $perhitungan[$key_perhitungan]->subkreteria->kelengkapan Data jadi $perhitungan[$key_perhitungan]->subkreteria->kelengkapanData karena variabel tidak boleh ada spasi
+                        $perhitungan[$key_perhitungan]->subkreteria->$variabel = $value->nilai;
+                    }
+                }
+            }
+        }
+        // untuk mengembalikan data yang sudah dimasukkan
+        return $perhitungan;
     }
 }

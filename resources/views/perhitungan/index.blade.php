@@ -38,6 +38,8 @@
                             <form action="{{ route('perhitungan.delete_all') }}"class="pull-right" method="post">
                                 {{ csrf_field() }}
                                 {{ method_field('post') }}
+                                <a href="{{ route('perhitungan.semua','0') }}" class="btn btn-success">Lihat Semua Perhitungan</a>
+                                
                                 <button type="submit" class="btn btn-danger">Hapus Semua</button>
                                 {{-- <button type="submit" class="btn btn-danger">PDF</button> --}}
                                 <a href="{{ route('perhitungan.pdf') }}" target="blank" class="btn btn-outline-info">PDF</a>
@@ -69,16 +71,19 @@
                                         <td>{{ $perhitungans['perhitungan']->nama }}</td>
                                         <td>{{ $perhitungans['perhitungan']->hasil }}</td>
                                         <td>
+                                            
                                             <div class="btn-group dropdown">
                                                 <button type="button" class="btn btn-success dropdown-toggle btn-sm"
                                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                     Action
                                                 </button>
-                                                <div class="dropdown-menu" x-placement="bottom-start"
-                                                    style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 30px, 0px);">
+                                                <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 30px, 0px);">
                                                     <a class="dropdown-item"
                                                         href="{{ route('perhitungan.edit', $perhitungans['perhitungan']->id) }}">Edit</a>
-                                                    <form action="{{ route('perhitungan.destroy', $perhitungans['perhitungan']->id) }}"
+                                                        <a class="dropdown-item" 
+                                                        href="{{ route('perhitungan.show',$perhitungans['perhitungan']->id) }}">Detail</a>
+                                                    <form
+                                                        action="{{ route('perhitungan.destroy', $perhitungans['perhitungan']->id) }}"
                                                         class="pull-left" method="post">
                                                         {{ csrf_field() }}
                                                         {{ method_field('delete') }}
@@ -86,6 +91,7 @@
                                                             onclick="return confirm('Anda yakin ingin menghapus data ini?')">
                                                             Delete
                                                         </button>
+                                                        
                                                     </form>
 
                                                 </div>

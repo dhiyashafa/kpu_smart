@@ -34,5 +34,6 @@ Route::resource('/kriteria', KriteriaController::class);
 Route::resource('/perhitungan', PerhitunganController::class);
 Route::post('/perhitungan/delete_all', [PerhitunganController::class,'delete_all'])->name('perhitungan.delete_all');
 Route::get('/pdf', [PerhitunganController::class,'export_pdf'])->name('perhitungan.pdf');
+Route::get('/semua/{perhitungan}', [PerhitunganController::class,'semua'])->name('perhitungan.semua');
 
 
