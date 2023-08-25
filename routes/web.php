@@ -33,7 +33,8 @@ Route::resource('/alternatif', AlternatifController::class);
 Route::resource('/kriteria', KriteriaController::class);
 Route::resource('/perhitungan', PerhitunganController::class);
 Route::post('/perhitungan/delete_all', [PerhitunganController::class,'delete_all'])->name('perhitungan.delete_all');
-Route::get('/pdf', [PerhitunganController::class,'export_pdf'])->name('perhitungan.pdf');
+Route::get('/pdf/{perhitungan}', [PerhitunganController::class,'export_pdf'])->name('perhitungan.pdf');
 Route::get('/semua/{perhitungan}', [PerhitunganController::class,'semua'])->name('perhitungan.semua');
+Route::get('/hapus/semua', [PerhitunganController::class,'hapus_index'])->name('perhitungan.hapussemua');
 
 

@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Laporan Penilaian</title>
+    <title>{{ $title }}</title>
     <style>
         table,
         th,
@@ -17,10 +17,10 @@
 
 <body>
     <center>
-        <h1>Laporan Penilaian</h1>
+        <h1>{{ $title }}</h1>
     </center>
 
-    @if ($perhitungan->isEmpty())
+    @if (empty($perhitungan))
         <center>
             <h3>Data Tidak Ditemukan</h3>
         </center>
@@ -31,13 +31,19 @@
                     <th>Ranking</th>
                     <th>Nama Anggota</th>
                     <th>Nilai</th>
+                    @if ($perhitungan[0]['perhitungan']->deleted_at)
+                    <th>Tanggal Delete</th>
+                    @endif
             </thead>
             <tbody>
                 @foreach ($perhitungan as $key => $perhitungans)
                     <tr>
-                        <td>{{ $key + 1 }}</td>
-                        <td>{{ $perhitungans->nama }}</td>
-                        <td>{{ $perhitungans->hasil }}</td>
+                        <td>{{ $perhitungans['ranking'] }}</td>
+                        <td>{{ $perhitungans['perhitungan']->nama }}</td>
+                        <td>{{ $perhitungans['perhitungan']->hasil }}</td>
+                        @if ($perhitungans['perhitungan']->deleted_at)
+                            <td>{{ $perhitungans['perhitungan']->deleted_at }}</td>
+                        @endif
                     </tr>
                 @endforeach
             </tbody>

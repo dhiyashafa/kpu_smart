@@ -15,7 +15,7 @@ class Perhitungan extends Model
     protected $table = 'perhitungans';
     protected $fillable = [
     	// 'alternatifs_id', 'kriterias_id', 'hasil'
-    	'alternatifs_id', 'hasil'
+    	'alternatifs_id', 'hasil','deleted_at'
     ];
 
     // public function alternatif()

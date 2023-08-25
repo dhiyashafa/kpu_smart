@@ -53,6 +53,39 @@ class PerhitunganController extends Controller
 
         return view('perhitungan.index', compact('param'));
     }
+    public function hapus_index()
+    {
+        $tampung = [];
+        // mencari ranking dan total anggota 
+        $param['ranking'] = Perhitungan::onlyTrashed()->select("hasil", DB::raw('count(hasil) total'))
+            ->leftJoin('alternatifs', 'perhitungans.alternatifs_id', '=', 'alternatifs.id')
+            ->orderBy('hasil', 'desc')
+            ->groupBy('hasil')->get();
+
+        // mengambil semua data perhitungan
+        $perhitungan = Perhitungan::onlyTrashed()->select("perhitungans.*", "alternatifs.nama")
+            ->leftJoin('alternatifs', 'perhitungans.alternatifs_id', '=', 'alternatifs.id')
+            ->orderBy('hasil', 'desc')->get();
+
+        $array_ranking = [];
+        // merubah dari array list ke array
+        foreach ($param['ranking'] as $key => $value) {
+            $array_ranking[] = $value->hasil;
+        }
+        // jika hasil ada didalam array rangking +1 hasilnya rankingnya
+        foreach ($perhitungan as $key => $value) {
+            // jika ada data tidak ditemukan di ranking otomatis mengambil ranking 1 karena array_search($value->hasil, $array_ranking) hasilnya kosong kalau di + 1 otomatis hasilya 1
+            $ranking = array_search($value->hasil, $array_ranking) + 1;
+            $tampung[] = ['ranking' => $ranking, 'perhitungan' => $value];
+        }
+
+        // param berfungsi untuk beberapa variabel menjadi 1 untuk dikirim ke view
+        $param['perhitungan'] = $tampung;
+        $param['title'] = $this->title;
+
+        return view('perhitungan.hapusindex', compact('param'));
+    }
+
 
     public function create(Request $request)
     {
@@ -200,8 +233,8 @@ class PerhitunganController extends Controller
     {
         // return $alternatif;
         // dd();
-        $param['perhitungan'] = Perhitungan::select("perhitungans.hasil", "alternatifs.nama")->leftJoin('alternatifs', 'perhitungans.alternatifs_id', '=', 'alternatifs.id')->where('perhitungans.id',$id)->first();
-        $param['subkreteria'] = Subkreteria::select("sub_kriteria.perhitungan_id", "sub_kriteria.nilai", "kriterias.nama")->leftJoin('kriterias', 'sub_kriteria.kriterias_id', '=', 'kriterias.id')->leftJoin('alternatifs', 'sub_kriteria.kriterias_id', '=', 'alternatifs.id')->where('sub_kriteria.perhitungan_id',$id)->get();
+        $param['perhitungan'] = Perhitungan::select("perhitungans.hasil", "alternatifs.nama")->leftJoin('alternatifs', 'perhitungans.alternatifs_id', '=', 'alternatifs.id')->where('perhitungans.id', $id)->first();
+        $param['subkreteria'] = Subkreteria::select("sub_kriteria.perhitungan_id", "sub_kriteria.nilai", "kriterias.nama")->leftJoin('kriterias', 'sub_kriteria.kriterias_id', '=', 'kriterias.id')->leftJoin('alternatifs', 'sub_kriteria.kriterias_id', '=', 'alternatifs.id')->where('sub_kriteria.perhitungan_id', $id)->get();
 
         return view('perhitungan.show', compact('param'));
     }
@@ -342,19 +375,68 @@ class PerhitunganController extends Controller
     public function destroy($id)
     {
         // untuk menghpus permanen
-        Perhitungan::findorfail($id)->forceDelete();
+        Perhitungan::findorfail($id)->delete();
         // untuk mengupdate semua perhitungan biar tidak mengedit perhitungannya
         $this->update_hasil_all();
         alert()->success('Berhasil.', "Data Berhasil di hapus !");
         return redirect()->route('perhitungan.index');
     }
-    function export_pdf()
+    function export_pdf($onlyTrashed = '0')
     {
-        // mengambil data perhitungan
-        $perhitungan = Perhitungan::select("perhitungans.*", "alternatifs.nama")->leftJoin('alternatifs', 'perhitungans.alternatifs_id', '=', 'alternatifs.id')->orderBy('hasil', 'desc')->get();
+        $tampung = [];
+        if ($onlyTrashed == 0) {
+            // $perhitungan = Perhitungan::select("perhitungans.*", "alternatifs.nama")->leftJoin('alternatifs', 'perhitungans.alternatifs_id', '=', 'alternatifs.id')->orderBy('hasil', 'desc')->get();
+            $param['ranking'] = Perhitungan::select("hasil", DB::raw('count(hasil) total'))
+                ->leftJoin('alternatifs', 'perhitungans.alternatifs_id', '=', 'alternatifs.id')
+                ->orderBy('hasil', 'desc')
+                ->groupBy('hasil')->get();
 
-        $pdf = Pdf::loadview('perhitungan.pdf', ['perhitungan' => $perhitungan]);
-        return $pdf->stream();
+            // mengambil semua data perhitungan
+            $perhitungan = Perhitungan::select("perhitungans.*", "alternatifs.nama")
+                ->leftJoin('alternatifs', 'perhitungans.alternatifs_id', '=', 'alternatifs.id')
+                ->orderBy('hasil', 'desc')->get();
+
+            $array_ranking = [];
+            // merubah dari array list ke array
+            foreach ($param['ranking'] as $key => $value) {
+                $array_ranking[] = $value->hasil;
+            }
+            // jika hasil ada didalam array rangking +1 hasilnya rankingnya
+            foreach ($perhitungan as $key => $value) {
+                // jika ada data tidak ditemukan di ranking otomatis mengambil ranking 1 karena array_search($value->hasil, $array_ranking) hasilnya kosong kalau di + 1 otomatis hasilya 1
+                $ranking = array_search($value->hasil, $array_ranking) + 1;
+                $tampung[] = ['ranking' => $ranking, 'perhitungan' => $value];
+            }
+
+            $pdf = Pdf::loadview('perhitungan.pdf', ['perhitungan' => $tampung, 'title' => 'Laporan Penilaian']);
+            return $pdf->stream();
+        } else {
+            // $perhitungan = Perhitungan::onlyTrashed()->select("perhitungans.*", "alternatifs.nama")->leftJoin('alternatifs', 'perhitungans.alternatifs_id', '=', 'alternatifs.id')->orderBy('hasil', 'desc')->get();
+            $param['ranking'] = Perhitungan::onlyTrashed()->select("hasil", DB::raw('count(hasil) total'))
+                ->leftJoin('alternatifs', 'perhitungans.alternatifs_id', '=', 'alternatifs.id')
+                ->orderBy('hasil', 'desc')
+                ->groupBy('hasil')->get();
+
+            // mengambil semua data perhitungan
+            $perhitungan = Perhitungan::onlyTrashed()->select("perhitungans.*", "alternatifs.nama")
+                ->leftJoin('alternatifs', 'perhitungans.alternatifs_id', '=', 'alternatifs.id')
+                ->orderBy('hasil', 'desc')->get();
+
+            $array_ranking = [];
+            // merubah dari array list ke array
+            foreach ($param['ranking'] as $key => $value) {
+                $array_ranking[] = $value->hasil;
+            }
+            // jika hasil ada didalam array rangking +1 hasilnya rankingnya
+            foreach ($perhitungan as $key => $value) {
+                // jika ada data tidak ditemukan di ranking otomatis mengambil ranking 1 karena array_search($value->hasil, $array_ranking) hasilnya kosong kalau di + 1 otomatis hasilya 1
+                $ranking = array_search($value->hasil, $array_ranking) + 1;
+                $tampung[] = ['ranking' => $ranking, 'perhitungan' => $value];
+            }
+
+            $pdf = Pdf::loadview('perhitungan.pdf', ['perhitungan' => $tampung, 'title' => 'Laporan History Hapus Semua']);
+            return $pdf->stream();
+        }
     }
     function semua($id = 0)
     {

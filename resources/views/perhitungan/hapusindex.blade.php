@@ -14,8 +14,8 @@
     <div class="row">
 
         <div class="col-lg-2">
-            <a href="{{ route('perhitungan.create') }}" class="btn btn-primary btn-rounded btn-fw"><i class="fa fa-plus"></i>
-                Add {{ $param['title'] }}</a>
+            <a href="{{ route('perhitungan.index') }}" class="btn btn-light btn-rounded btn-fw"> <i
+                class="fa fa-arrow-left"></i> Back {{ $param['title'] }}</a>
         </div>
         <div class="col-lg-12">
             @if (Session::has('message'))
@@ -38,12 +38,7 @@
                             <form action="{{ route('perhitungan.delete_all') }}"class="pull-right" method="post">
                                 {{ csrf_field() }}
                                 {{ method_field('post') }}
-                                <a href="{{ route('perhitungan.hapussemua') }}" class="btn btn-success">History Data</a>
-                                <a href="{{ route('perhitungan.semua','0') }}" class="btn btn-success">Detail Perhitungan</a>
-                                
-                                <button type="submit" class="btn btn-danger">Hapus Semua</button>
-                                {{-- <button type="submit" class="btn btn-danger">PDF</button> --}}
-                                <a href="{{ route('perhitungan.pdf','0') }}" target="blank" class="btn btn-outline-info">PDF</a>
+                                <a href="{{ route('perhitungan.pdf','1') }}" target="blank" class="btn btn-outline-info">PDF</a>
                             </form>
                         </div>
                     </div>
@@ -61,8 +56,11 @@
                                         hasil
                                     </th>
                                     <th>
-                                        Action
+                                        Tanggal Hapus
                                     </th>
+                                    {{-- <th>
+                                        Action
+                                    </th> --}}
                                 </tr>
                             </thead>
                             <tbody>
@@ -71,8 +69,9 @@
                                         <td>{{ $perhitungans['ranking'] }}</td>
                                         <td>{{ $perhitungans['perhitungan']->nama }}</td>
                                         <td>{{ $perhitungans['perhitungan']->hasil }}</td>
-                                        <td>
-                                            
+                                        <td>{{ $perhitungans['perhitungan']->deleted_at }}</td>
+                                        
+                                        {{-- <td>
                                             <div class="btn-group dropdown">
                                                 <button type="button" class="btn btn-success dropdown-toggle btn-sm"
                                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -83,7 +82,6 @@
                                                         href="{{ route('perhitungan.edit', $perhitungans['perhitungan']->id) }}">Edit</a>
                                                         <a class="dropdown-item" 
                                                         href="{{ route('perhitungan.show',$perhitungans['perhitungan']->id) }}">Detail</a>
-                                                        {{-- <a class="dropdown-item"  href="{{ route('perhitungan.semua',$perhitungans['perhitungan']->id) }}">Detail Perhitungan</a> --}}
                                                     <form
                                                         action="{{ route('perhitungan.destroy', $perhitungans['perhitungan']->id) }}"
                                                         class="pull-left" method="post">
@@ -98,7 +96,7 @@
 
                                                 </div>
                                             </div>
-                                        </td>
+                                        </td> --}}
                                     </tr>
                                 @endforeach
                             </tbody>
